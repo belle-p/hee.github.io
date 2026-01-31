@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可爱猫咪圆盘抽奖</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #ffebf3;
+            background-image: radial-gradient(#ffb6d9 2px, transparent 2px);
+            background-size: 40px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        h1 {
+            color: #ff6b9d;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 2.8rem;
+            text-shadow: 3px 3px 0 #ffe6f0;
+            position: relative;
+        }
+        
+        h1:after {
+            content: "🐱";
+            position: absolute;
+            top: -15px;
+            right: -45px;
+            font-size: 2rem;
+            transform: rotate(20deg);
+        }
+        
+        h1:before {
+            content: "🐾";
+            position: absolute;
+            top: 15px;
+            left: -45px;
+            font-size: 1.8rem;
+            transform: rotate(-15deg);
+        }
+        
+        .subtitle {
+            color: #ff85a8;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+            background-color: #fff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.2);
+        }
+        
+        .lottery-container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .wheel-wrapper {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 15px #ffccdd, 0 20px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.21, 0.99);
+            background-color: #fff;
+        }
+        
+        .wheel-item {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            left: 0;
+            top: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            padding-left: 60px;
+            padding-bottom: 30px;
+        }
+        
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #ff6b9d;
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 70px;
+            z-index: 10;
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.3));
+        }
+        
+        .pointer:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 70px solid #ff6b9d;
+        }
+        
+        .pointer:after {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #ff6b9d;
+            border-radius: 50%;
+        }
+        
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 300px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.2);
+            border: 5px dashed #ffccdd;
+        }
+        
+        .prize-list {
+            width: 100%;
+        }
+        
+        .prize-list h3 {
+            color: #ff6b9d;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        
+        .prizes {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .prize {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background-color: #fff5f9;
+            border-radius: 10px;
+            border-left: 5px solid #ff6b9d;
+        }
+        
+        .prize-name {
+            color: #ff6b9d;
+            font-weight: bold;
+        }
+        
+        .prize-value {
+            color: #ff85a8;
+            font-weight: bold;
+        }
+        
+        .btn-spin {
+            background-color: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 0 #e05587;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .btn-spin:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 13px 0 #e05587;
+        }
+        
+        .btn-spin:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 0 #e05587;
+        }
+        
+        .btn-spin:disabled {
+            background-color: #cccccc;
+            box-shadow: 0 8px 0 #aaaaaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-spin:disabled:hover {
+            transform: none;
+            box-shadow: 0 8px 0 #aaaaaa;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.2);
+            border: 5px solid #ffccdd;
+            display: none;
+        }
+        
+        .result h3 {
+            color: #ff6b9d;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .prize-result {
+            font-size: 2rem;
+            color: #ff6b9d;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fff5f9;
+            border-radius: 10px;
+            border: 3px dashed #ff6b9d;
+        }
+        
+        .countdown {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #fff5f9;
+            border-radius: 10px;
+            color: #ff6b9d;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .rule-info {
+            margin-top: 10px;
+            padding: 12px;
+            background-color: #f0f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #4dabf7;
+            color: #1971c2;
+            font-size: 0.9rem;
+        }
+        
+        .rule-info i {
+            margin-right: 8px;
+            color: #4dabf7;
+        }
+        
+        .cats {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .cat {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+        
+        .cat:nth-child(1) { top: 10%; left: 5%; transform: rotate(-15deg); }
+        .cat:nth-child(2) { top: 15%; right: 8%; transform: rotate(15deg); }
+        .cat:nth-child(3) { bottom: 20%; left: 8%; transform: rotate(10deg); }
+        .cat:nth-child(4) { bottom: 15%; right: 5%; transform: rotate(-10deg); }
+        .cat:nth-child(5) { top: 50%; left: 3%; transform: rotate(5deg); }
+        .cat:nth-child(6) { top: 60%; right: 4%; transform: rotate(-5deg); }
+        
+        .footprints {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: #ffb6d9;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 850px) {
+            .lottery-container {
+                flex-direction: column;
+            }
+            
+            .wheel-wrapper {
+                width: 320px;
+                height: 320px;
+            }
+            
+            .wheel-item {
+                font-size: 16px;
+                padding-left: 50px;
+                padding-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .wheel-wrapper {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .wheel-item {
+                font-size: 14px;
+                padding-left: 40px;
+                padding-bottom: 15px;
+            }
+            
+            .control-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cats">
+        <div class="cat">🐱</div>
+        <div class="cat">🐱</div>
+        <div class="cat">🐱</div>
+        <div class="cat">🐱</div>
+        <div class="cat">🐱</div>
+        <div class="cat">🐱</div>
+    </div>
+    
+    <div class="container">
+        <h1>猫咪幸运大转盘</h1>
+        <p class="subtitle">点击旋转按钮，赢取超值优惠！每24小时内只能抽奖一次哦～</p>
+        
+        <div class="lottery-container">
+            <div class="wheel-wrapper">
+                <div class="wheel" id="wheel">
+                    <!-- 转盘奖品将通过JS动态生成 -->
+                </div>
+                <div class="wheel-center">抽奖<br>转盘</div>
+                <div class="pointer"></div>
+            </div>
+            
+            <div class="control-panel">
+                <div class="prize-list">
+                    <h3><i class="fas fa-gift"></i> 奖品列表</h3>
+                    <div class="prizes">
+                        <div class="prize">
+                            <span class="prize-name">减3元</span>
+                            <span class="prize-value">优惠券</span>
+                        </div>
+                        <div class="prize">
+                            <span class="prize-name">减5元</span>
+                            <span class="prize-value">优惠券</span>
+                        </div>
+                        <div class="prize">
+                            <span class="prize-name">减10元</span>
+                            <span class="prize-value">优惠券</span>
+                        </div>
+                        <div class="prize">
+                            <span class="prize-name">减15元</span>
+                            <span class="prize-value">优惠券</span>
+                        </div>
+                        <div class="prize">
+                            <span class="prize-name">减20元</span>
+                            <span class="prize-value">优惠券</span>
+                        </div>
+                        <div class="prize">
+                            <span class="prize-name">免单</span>
+                            <span class="prize-value">超级大奖</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="rule-info">
+                    <i class="fas fa-info-circle"></i> 
+                    温馨提示：每24小时内只能抽奖一次，下次抽奖时间倒计时将在下方显示
+                </div>
+                
+                <button class="btn-spin" id="spinBtn">
+                    <i class="fas fa-redo-alt"></i> 开始抽奖
+                </button>
+                
+                <div class="countdown" id="countdown">
+                    <i class="fas fa-clock"></i> 
+                    距离下次抽奖还有: <span id="countdownTimer">00:00:00</span>
+                </div>
+                
+                <p style="color: #ff85a8; text-align: center; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> 点击按钮后转盘开始旋转，指针指向的即为中奖奖品
+                </p>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <h3><i class="fas fa-trophy"></i> 恭喜您中奖了！</h3>
+            <p>指针指向的奖品是：</p>
+            <div class="prize-result" id="prizeResult">减3元优惠券</div>
+            <p>请截图保存中奖结果，联系客服兑换奖品</p>
+            <div class="countdown" style="margin-top: 15px;">
+                <i class="fas fa-clock"></i> 
+                下次抽奖时间: <span id="nextDrawTime">24小时后</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footprints">
+        <span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span><span>🐾</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 奖品数据和对应的概率
+            const prizes = [
+                { name: "减3元", probability: 40 },   // 40%
+                { name: "减5元", probability: 25 },   // 25%
+                { name: "减10元", probability: 15 },  // 15%
+                { name: "减15元", probability: 12 },  // 12%
+                { name: "减20元", probability: 5 },   // 5%
+                { name: "免单", probability: 3 }      // 3%
+            ];
+            
+            // 奖品对应的颜色
+            const colors = [
+                "#FF9AA2", "#FFB7B2", "#FFDAC1", 
+                "#E2F0CB", "#B5EAD7", "#C7CEEA"
+            ];
+            
+            // DOM元素
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            const result = document.getElementById('result');
+            const prizeResult = document.getElementById('prizeResult');
+            const countdown = document.getElementById('countdown');
+            const countdownTimer = document.getElementById('countdownTimer');
+            const nextDrawTime = document.getElementById('nextDrawTime');
+            
+            // 抽奖状态变量
+            let isSpinning = false;
+            let lastDrawTime = null;
+            let countdownInterval = null;
+            
+            // 初始化页面
+            function initPage() {
+                // 从本地存储获取上次抽奖时间
+                lastDrawTime = localStorage.getItem('lastDrawTime');
+                
+                // 初始化转盘
+                initWheel();
+                
+                // 检查是否可以抽奖
+                checkDrawAvailability();
+                
+                // 如果已经抽过奖，显示倒计时
+                if (lastDrawTime) {
+                    updateCountdown();
+                    startCountdownTimer();
+                }
+            }
+            
+            // 初始化转盘
+            function initWheel() {
+                wheel.innerHTML = '';
+                
+                // 每个奖品占据的角度（虽然视觉上是均匀的，但概率不同）
+                const anglePerPrize = 360 / prizes.length;
+                
+                // 创建奖品扇形
+                prizes.forEach((prize, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'wheel-item';
+                    item.textContent = prize.name;
+                    item.style.backgroundColor = colors[index];
+                    item.style.transform = `rotate(${index * anglePerPrize}deg)`;
+                    
+                    // 设置文字方向
+                    const textAngle = index * anglePerPrize + anglePerPrize / 2;
+                    item.style.transform += ` skewY(${90 - anglePerPrize}deg)`;
+                    
+                    wheel.appendChild(item);
+                });
+            }
+            
+            // 根据概率随机选择奖品
+            function selectPrizeByProbability() {
+                // 生成0-99的随机数
+                const randomNum = Math.floor(Math.random() * 100);
+                
+                // 根据概率分布选择奖品
+                let cumulativeProbability = 0;
+                for (let i = 0; i < prizes.length; i++) {
+                    cumulativeProbability += prizes[i].probability;
+                    if (randomNum < cumulativeProbability) {
+                        return i; // 返回奖品索引
+                    }
+                }
+                
+                // 如果由于四舍五入问题没有返回，默认返回第一个奖品
+                return 0;
+            }
+            
+            // 检查是否可以抽奖
+            function checkDrawAvailability() {
+                if (!lastDrawTime) {
+                    // 从未抽过奖，可以抽奖
+                    spinBtn.disabled = false;
+                    countdown.style.display = 'none';
+                    return;
+                }
+                
+                const lastTime = new Date(lastDrawTime).getTime();
+                const currentTime = new Date().getTime();
+                const twentyFourHours = 24 * 60 * 60 * 1000; // 24小时毫秒数
+                
+                if (currentTime - lastTime >= twentyFourHours) {
+                    // 超过24小时，可以抽奖
+                    spinBtn.disabled = false;
+                    spinBtn.innerHTML = '<i class="fas fa-redo-alt"></i> 开始抽奖';
+                    countdown.style.display = 'none';
+                } else {
+                    // 未超过24小时，不能抽奖
+                    spinBtn.disabled = true;
+                    spinBtn.innerHTML = '<i class="fas fa-clock"></i> 24小时内已抽奖';
+                    countdown.style.display = 'block';
+                }
+            }
+            
+            // 更新倒计时显示
+            function updateCountdown() {
+                if (!lastDrawTime) return;
+                
+                const lastTime = new Date(lastDrawTime).getTime();
+                const currentTime = new Date().getTime();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+                const nextDrawTimeMillis = lastTime + twentyFourHours;
+                const remainingTime = nextDrawTimeMillis - currentTime;
+                
+                if (remainingTime <= 0) {
+                    // 倒计时结束，可以抽奖
+                    checkDrawAvailability();
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                // 计算剩余的小时、分钟、秒
+                const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+                
+                // 格式化显示
+                countdownTimer.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // 更新结果区域的下次抽奖时间
+                const nextDrawDate = new Date(nextDrawTimeMillis);
+                nextDrawTime.textContent = `${nextDrawDate.getHours().toString().padStart(2, '0')}:${nextDrawDate.getMinutes().toString().padStart(2, '0')}:${nextDrawDate.getSeconds().toString().padStart(2, '0')}`;
+            }
+            
+            // 启动倒计时定时器
+            function startCountdownTimer() {
+                // 清除之前的定时器
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+                
+                // 每秒更新一次倒计时
+                countdownInterval = setInterval(updateCountdown, 1000);
+                updateCountdown(); // 立即执行一次
+            }
+            
+            // 旋转转盘
+            function spinWheel() {
+                if (isSpinning) return;
+                
+                // 检查是否可以抽奖
+                const lastTime = lastDrawTime ? new Date(lastDrawTime).getTime() : 0;
+                const currentTime = new Date().getTime();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+                
+                if (lastDrawTime && currentTime - lastTime < twentyFourHours) {
+                    alert("24小时内只能抽奖一次，请等待倒计时结束！");
+                    return;
+                }
+                
+                isSpinning = true;
+                spinBtn.disabled = true;
+                spinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 抽奖中...';
+                result.style.display = 'none';
+                
+                // 根据概率随机选择奖品
+                const prizeIndex = selectPrizeByProbability();
+                const selectedPrize = prizes[prizeIndex].name;
+                
+                // 计算转盘需要旋转的角度
+                // 注意：虽然转盘看起来是均匀的，但我们要根据概率选择的奖品来停止
+                const anglePerPrize = 360 / prizes.length;
+                const targetPrizeAngle = prizeIndex * anglePerPrize + anglePerPrize / 2;
+                
+                // 转盘需要旋转的角度 = 目标角度 + 多转几圈
+                const spinDegrees = 360 * 5 + (360 - targetPrizeAngle);
+                
+                // 设置旋转
+                wheel.style.transform = `rotate(${spinDegrees}deg)`;
+                
+                // 旋转结束后显示结果
+                setTimeout(() => {
+                    // 记录抽奖时间到本地存储
+                    const now = new Date();
+                    lastDrawTime = now.toISOString();
+                    localStorage.setItem('lastDrawTime', lastDrawTime);
+                    
+                    // 显示结果
+                    prizeResult.textContent = selectedPrize;
+                    result.style.display = 'block';
+                    spinBtn.innerHTML = '<i class="fas fa-check"></i> 已抽奖';
+                    
+                    // 更新倒计时显示
+                    countdown.style.display = 'block';
+                    startCountdownTimer();
+                    
+                    // 庆祝效果
+                    celebrate(prizeIndex);
+                }, 4000);
+            }
+            
+            // 庆祝效果（根据奖品价值调整庆祝强度）
+            function celebrate(prizeIndex) {
+                // 根据奖品价值确定庆祝强度
+                let heartCount = 15;
+                if (prizeIndex >= 4) { // 减20元或免单
+                    heartCount = 30;
+                } else if (prizeIndex >= 2) { // 减10元或减15元
+                    heartCount = 20;
+                }
+                
+                // 创建飘落的心形
+                for (let i = 0; i < heartCount; i++) {
+                    createFallingHeart();
+                }
+            }
+            
+            // 创建飘落的心形
+            function createFallingHeart() {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'fixed';
+                heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+                heart.style.top = '-50px';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.opacity = '0.7';
+                heart.style.zIndex = '1000';
+                heart.style.pointerEvents = 'none';
+                document.body.appendChild(heart);
+                
+                // 动画
+                const animation = heart.animate([
+                    { top: '-50px', transform: 'rotate(0deg)', opacity: 0.7 },
+                    { top: '100vh', transform: 'rotate(360deg)', opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)'
+                });
+                
+                // 动画结束后移除元素
+                animation.onfinish = () => {
+                    document.body.removeChild(heart);
+                };
+            }
+            
+            // 添加按钮点击事件
+            spinBtn.addEventListener('click', spinWheel);
+            
+            // 初始化页面
+            initPage();
+            
+            // 添加一些初始的可爱元素动画
+            const cats = document.querySelectorAll('.cat');
+            cats.forEach((cat, index) => {
+                // 为每个猫咪添加轻微的浮动动画
+                cat.style.animation = `float 3s ease-in-out ${index * 0.5}s infinite alternate`;
+            });
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+                    100% { transform: translateY(-20px) rotate(var(--rot, 0deg)); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 为每个猫咪设置不同的旋转角度
+            document.querySelectorAll('.cat').forEach((cat, i) => {
+                const rotations = ['-15deg', '15deg', '10deg', '-10deg', '5deg', '-5deg'];
+                cat.style.setProperty('--rot', rotations[i]);
+            });
+        });
+    </script>
+</body>
+</html>
